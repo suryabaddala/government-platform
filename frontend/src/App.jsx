@@ -177,30 +177,44 @@ function App() {
   // SUBMIT APPLICATION
   // =========================
 
-  const submitApplication = (event) => {
+  const submitApplication = async (event) => {
     event.preventDefault();
 
-    const newId =
-      "GOV" + Math.floor(100000 + Math.random() * 900000);
+    try {
+      const response = await fetch("http://localhost:8080/api/applications", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ serviceName: selectedService.title }),
+      });
 
-    setApplicationId(newId);
-    setTrackId(newId);
-    setTrackedApplication(newId);
+      if (!response.ok) {
+        throw new Error("Application submission failed");
+      }
 
-    setShowApplicationForm(false);
-    setSelectedService(null);
+      const application = await response.json();
+      const newId = application.applicationId;
 
-    alert(
-      "Application submitted successfully!\n\nYour Application ID is:\n" +
-        newId
-    );
+      setApplicationId(newId);
+      setTrackId(newId);
+      setTrackedApplication(newId);
+
+      setShowApplicationForm(false);
+      setSelectedService(null);
+
+      alert(
+        "Application submitted successfully!\n\nYour Application ID is:\n" +
+          newId
+      );
+    } catch (error) {
+      alert("Could not submit the application. Make sure the backend is running.");
+    }
   };
 
   // =========================
   // TRACK APPLICATION
   // =========================
 
-  const trackApplication = () => {
+  const trackApplication = async () => {
     const enteredId = trackId.trim().toUpperCase();
 
     if (enteredId === "") {
@@ -208,12 +222,19 @@ function App() {
       return;
     }
 
-    if (
-      applicationId !== "" &&
-      enteredId === applicationId.toUpperCase()
-    ) {
-      setTrackedApplication(applicationId);
-    } else {
+    try {
+      const response = await fetch(
+        `http://localhost:8080/api/applications/${enteredId}`
+      );
+
+      if (!response.ok) {
+        throw new Error("Application not found");
+      }
+
+      const application = await response.json();
+      setApplicationId(application.applicationId);
+      setTrackedApplication(application.applicationId);
+    } catch (error) {
       setTrackedApplication("NOT_FOUND");
     }
   };
@@ -1086,7 +1107,7 @@ function App() {
 
             <button
               className="modal-close"
-              onClick={closeModal}
+              onClick={closeServiceDetails}
             >
               ✕
             </button>
@@ -1201,7 +1222,7 @@ function App() {
 
             <button
               className="modal-close"
-              onClick={closeModal}
+              onClick={closeServiceDetails}
             >
               ✕
             </button>
