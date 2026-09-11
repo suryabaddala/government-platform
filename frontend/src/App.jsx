@@ -8,6 +8,12 @@ function App() {
 
   const [search, setSearch] = useState("");
   const [showAI, setShowAI] = useState(false);
+  const [showLogin, setShowLogin] = useState(false);
+  const [authMode, setAuthMode] = useState("login");
+  const [loginName, setLoginName] = useState("");
+  const [loginEmail, setLoginEmail] = useState("");
+  const [loginPassword, setLoginPassword] = useState("");
+  const [loggedInUser, setLoggedInUser] = useState(null);
 
   const [selectedService, setSelectedService] = useState(null);
   const [showApplicationForm, setShowApplicationForm] = useState(false);
@@ -147,6 +153,59 @@ function App() {
     service.title.toLowerCase().includes(search.toLowerCase())
   );
 
+      {showLogin && (
+        <div className="modal-background">
+          <div className="ai-modal">
+            <button
+              className="modal-close"
+              onClick={() => setShowLogin(false)}
+            >
+              ✕
+            </button>
+
+            <h2>{authMode === "login" ? "Welcome back" : "Create your account"}</h2>
+
+            <form onSubmit={login}>
+              {authMode === "register" && (
+                <input
+                  type="text"
+                  placeholder="Full name"
+                  value={loginName}
+                  onChange={(event) => setLoginName(event.target.value)}
+                  required
+                />
+              )}
+              <input
+                type="email"
+                placeholder="Email address"
+                value={loginEmail}
+                onChange={(event) => setLoginEmail(event.target.value)}
+                required
+              />
+              <input
+                type="password"
+                placeholder="Password"
+                value={loginPassword}
+                onChange={(event) => setLoginPassword(event.target.value)}
+                minLength="6"
+                required
+              />
+              <button type="submit" className="submit-btn">
+                {authMode === "login" ? "Login" : "Register"}
+              </button>
+            </form>
+
+            <button
+              onClick={() => setAuthMode(authMode === "login" ? "register" : "login")}
+            >
+              {authMode === "login"
+                ? "Create a new account"
+                : "Already have an account? Login"}
+            </button>
+          </div>
+        </div>
+      )}
+
   // =========================
   // OPEN SERVICE DETAILS
   // =========================
@@ -239,6 +298,35 @@ function App() {
     }
   };
 
+  const login = async (event) => {
+    event.preventDefault();
+    try {
+      const endpoint = authMode === "register" ? "register" : "login";
+      const response = await fetch(`http://localhost:8080/api/auth/${endpoint}`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          name: loginName,
+          email: loginEmail,
+          password: loginPassword,
+        }),
+      });
+      if (!response.ok) throw new Error("Authentication failed");
+      const user = await response.json();
+      setLoggedInUser(user);
+      setShowLogin(false);
+      setLoginName("");
+      setLoginEmail("");
+      setLoginPassword("");
+    } catch (error) {
+      alert(
+        authMode === "register"
+          ? "Registration failed. Use a new email and a password of at least 6 characters."
+          : "Login failed. Check your email and password."
+      );
+    }
+  };
+
   // =========================
   // SCROLL FUNCTION
   // =========================
@@ -304,8 +392,8 @@ function App() {
         </nav>
 
 
-        <button className="login-button">
-          Login
+        <button className="login-button" onClick={() => setShowLogin(true)}>
+          {loggedInUser ? `Hi, ${loggedInUser.name}` : "Login"}
         </button>
 
       </header>
