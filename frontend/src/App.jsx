@@ -14,6 +14,9 @@ function App() {
   const [loginEmail, setLoginEmail] = useState("");
   const [loginPassword, setLoginPassword] = useState("");
   const [loggedInUser, setLoggedInUser] = useState(null);
+  const [showAdmin, setShowAdmin] = useState(false);
+  const [adminKey, setAdminKey] = useState("");
+  const [adminApplications, setAdminApplications] = useState([]);
 
   const [selectedService, setSelectedService] = useState(null);
   const [showApplicationForm, setShowApplicationForm] = useState(false);
@@ -272,6 +275,47 @@ function App() {
     }
   };
 
+  const loadAdminApplications = async (event) => {
+    event.preventDefault();
+    try {
+      const response = await fetch("http://localhost:8080/api/applications/admin", {
+        headers: { "X-Admin-Key": adminKey },
+      });
+      if (!response.ok) throw new Error("Admin access denied");
+      setAdminApplications(await response.json());
+    } catch (error) {
+      alert("Admin access denied. Check the admin key.");
+    }
+  };
+
+  const updateAdminStatus = async (applicationId, status) => {
+    const response = await fetch(
+      `http://localhost:8080/api/applications/${applicationId}/status`,
+      {
+        method: "PUT",
+        headers: {
+          "Content-Type": "application/json",
+          "X-Admin-Key": adminKey,
+        },
+        body: JSON.stringify({ status }),
+      }
+    );
+
+    if (!response.ok) {
+      alert("Could not update application status.");
+      return;
+    }
+
+    const updatedApplication = await response.json();
+    setAdminApplications((applications) =>
+      applications.map((application) =>
+        application.applicationId === updatedApplication.applicationId
+          ? updatedApplication
+          : application
+      )
+    );
+  };
+
   // =========================
   // SCROLL FUNCTION
   // =========================
@@ -332,6 +376,13 @@ function App() {
             onClick={() => setShowAI(true)}
           >
             🤖 AI Assistant
+          </button>
+
+          <button
+            className="ai-nav-button"
+            onClick={() => setShowAdmin(true)}
+          >
+            Admin
           </button>
 
         </nav>
@@ -1385,6 +1436,46 @@ function App() {
                 ? "Create a new account"
                 : "Already have an account? Login"}
             </button>
+          </div>
+        </div>
+      )}
+
+      {showAdmin && (
+        <div className="modal-background">
+          <div className="ai-modal">
+            <button className="modal-close" onClick={() => setShowAdmin(false)}>
+              ✕
+            </button>
+            <h2>Admin Applications</h2>
+            <form onSubmit={loadAdminApplications}>
+              <input
+                type="password"
+                placeholder="Admin key"
+                value={adminKey}
+                onChange={(event) => setAdminKey(event.target.value)}
+                required
+              />
+              <button type="submit" className="submit-btn">Load Applications</button>
+            </form>
+            <div>
+              {adminApplications.map((application) => (
+                <div key={application.applicationId}>
+                  <strong>{application.applicationId}</strong>
+                  <span> {application.serviceName}</span>
+                  <select
+                    value={application.status}
+                    onChange={(event) =>
+                      updateAdminStatus(application.applicationId, event.target.value)
+                    }
+                  >
+                    <option value="SUBMITTED">Submitted</option>
+                    <option value="VERIFIED">Verified</option>
+                    <option value="PROCESSING">Processing</option>
+                    <option value="APPROVED">Approved</option>
+                  </select>
+                </div>
+              ))}
+            </div>
           </div>
         </div>
       )}
