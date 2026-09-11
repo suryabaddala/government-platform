@@ -1,6 +1,7 @@
 package govone.backend.service;
 
 import java.util.concurrent.ThreadLocalRandom;
+import java.util.List;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
@@ -34,6 +35,10 @@ public class ApplicationService {
 	public Application findByApplicationId(String applicationId) {
 		return applicationRepository.findByApplicationId(applicationId.trim().toUpperCase())
 				.orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Application not found"));
+	}
+
+	public List<Application> findAll() {
+		return applicationRepository.findAll();
 	}
 
 	public Application updateStatus(String applicationId, String status) {
