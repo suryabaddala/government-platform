@@ -35,4 +35,20 @@ public class ApplicationService {
 		return applicationRepository.findByApplicationId(applicationId.trim().toUpperCase())
 				.orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Application not found"));
 	}
+
+	public Application updateStatus(String applicationId, String status) {
+		if (status == null || status.isBlank()) {
+			throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "status is required");
+		}
+
+		String normalizedStatus = status.trim().toUpperCase();
+		if (!normalizedStatus.equals("SUBMITTED") && !normalizedStatus.equals("VERIFIED")
+				&& !normalizedStatus.equals("PROCESSING") && !normalizedStatus.equals("APPROVED")) {
+			throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Unsupported application status");
+		}
+
+		Application application = findByApplicationId(applicationId);
+		application.updateStatus(normalizedStatus);
+		return applicationRepository.save(application);
+	}
 }

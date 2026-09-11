@@ -47,6 +47,10 @@ public class Application {
 		return status;
 	}
 
+	public void updateStatus(String status) {
+		this.status = status;
+	}
+
 	public Instant getCreatedAt() {
 		return createdAt;
 	}

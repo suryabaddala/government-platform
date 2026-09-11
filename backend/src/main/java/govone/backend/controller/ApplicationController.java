@@ -5,6 +5,8 @@ import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+
+import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseStatus;
@@ -35,6 +37,14 @@ public class ApplicationController {
 		return applicationService.findByApplicationId(applicationId);
 	}
 
+	@PutMapping("/{applicationId}/status")
+	public Application updateStatus(@PathVariable String applicationId, @RequestBody UpdateStatusRequest request) {
+		return applicationService.updateStatus(applicationId, request.status());
+	}
+
 	public record CreateApplicationRequest(String serviceName) {
+	}
+
+	public record UpdateStatusRequest(String status) {
 	}
 }

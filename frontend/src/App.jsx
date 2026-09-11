@@ -21,6 +21,7 @@ function App() {
   const [applicationId, setApplicationId] = useState("");
   const [trackId, setTrackId] = useState("");
   const [trackedApplication, setTrackedApplication] = useState(null);
+  const [trackedStatus, setTrackedStatus] = useState("PROCESSING");
 
   // =========================
   // SERVICES
@@ -203,6 +204,7 @@ function App() {
       setApplicationId(newId);
       setTrackId(newId);
       setTrackedApplication(newId);
+      setTrackedStatus(application.status);
       setShowApplicationForm(false);
       setSelectedService(null);
 
@@ -235,6 +237,7 @@ function App() {
       const application = await response.json();
       setApplicationId(application.applicationId);
       setTrackedApplication(application.applicationId);
+      setTrackedStatus(application.status);
     } catch (error) {
       setTrackedApplication("NOT_FOUND");
     }
@@ -733,8 +736,8 @@ function App() {
               </div>
 
 
-              <span className="status-badge">
-                In Progress
+                <span className="status-badge">
+                {trackedStatus}
               </span>
 
             </div>
@@ -887,11 +890,11 @@ function App() {
 
                   <div>
                     <strong>
-                      Department Processing
+                      {trackedStatus}
                     </strong>
 
                     <small>
-                      In Progress
+                      {trackedStatus}
                     </small>
                   </div>
 
