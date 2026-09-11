@@ -153,59 +153,6 @@ function App() {
     service.title.toLowerCase().includes(search.toLowerCase())
   );
 
-      {showLogin && (
-        <div className="modal-background">
-          <div className="ai-modal">
-            <button
-              className="modal-close"
-              onClick={() => setShowLogin(false)}
-            >
-              ✕
-            </button>
-
-            <h2>{authMode === "login" ? "Welcome back" : "Create your account"}</h2>
-
-            <form onSubmit={login}>
-              {authMode === "register" && (
-                <input
-                  type="text"
-                  placeholder="Full name"
-                  value={loginName}
-                  onChange={(event) => setLoginName(event.target.value)}
-                  required
-                />
-              )}
-              <input
-                type="email"
-                placeholder="Email address"
-                value={loginEmail}
-                onChange={(event) => setLoginEmail(event.target.value)}
-                required
-              />
-              <input
-                type="password"
-                placeholder="Password"
-                value={loginPassword}
-                onChange={(event) => setLoginPassword(event.target.value)}
-                minLength="6"
-                required
-              />
-              <button type="submit" className="submit-btn">
-                {authMode === "login" ? "Login" : "Register"}
-              </button>
-            </form>
-
-            <button
-              onClick={() => setAuthMode(authMode === "login" ? "register" : "login")}
-            >
-              {authMode === "login"
-                ? "Create a new account"
-                : "Already have an account? Login"}
-            </button>
-          </div>
-        </div>
-      )}
-
   // =========================
   // OPEN SERVICE DETAILS
   // =========================
@@ -256,7 +203,6 @@ function App() {
       setApplicationId(newId);
       setTrackId(newId);
       setTrackedApplication(newId);
-
       setShowApplicationForm(false);
       setSelectedService(null);
 
@@ -268,10 +214,6 @@ function App() {
       alert("Could not submit the application. Make sure the backend is running.");
     }
   };
-
-  // =========================
-  // TRACK APPLICATION
-  // =========================
 
   const trackApplication = async () => {
     const enteredId = trackId.trim().toUpperCase();
@@ -1391,6 +1333,59 @@ function App() {
                   </div>
                   </div>
       )}
+      {showLogin && (
+        <div className="modal-background">
+          <div className="ai-modal">
+            <button
+              className="modal-close"
+              onClick={() => setShowLogin(false)}
+            >
+              ✕
+            </button>
+
+            <h2>{authMode === "login" ? "Welcome back" : "Create your account"}</h2>
+
+            <form onSubmit={login}>
+              {authMode === "register" && (
+                <input
+                  type="text"
+                  placeholder="Full name"
+                  value={loginName}
+                  onChange={(event) => setLoginName(event.target.value)}
+                  required
+                />
+              )}
+              <input
+                type="email"
+                placeholder="Email address"
+                value={loginEmail}
+                onChange={(event) => setLoginEmail(event.target.value)}
+                required
+              />
+              <input
+                type="password"
+                placeholder="Password"
+                value={loginPassword}
+                onChange={(event) => setLoginPassword(event.target.value)}
+                minLength="6"
+                required
+              />
+              <button type="submit" className="submit-btn">
+                {authMode === "login" ? "Login" : "Register"}
+              </button>
+            </form>
+
+            <button
+              onClick={() => setAuthMode(authMode === "login" ? "register" : "login")}
+            >
+              {authMode === "login"
+                ? "Create a new account"
+                : "Already have an account? Login"}
+            </button>
+          </div>
+        </div>
+      )}
+
       {/* =========================
           AI ASSISTANT MODAL
       ========================= */}
