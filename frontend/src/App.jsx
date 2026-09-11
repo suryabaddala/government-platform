@@ -20,6 +20,7 @@ function App() {
 
   const [selectedService, setSelectedService] = useState(null);
   const [showApplicationForm, setShowApplicationForm] = useState(false);
+  const [selectedFile, setSelectedFile] = useState(null);
 
   const [applicationId, setApplicationId] = useState("");
   const [trackId, setTrackId] = useState("");
@@ -204,12 +205,25 @@ function App() {
       const application = await response.json();
       const newId = application.applicationId;
 
+      if (selectedFile) {
+        const documentData = new FormData();
+        documentData.append("file", selectedFile);
+        const documentResponse = await fetch(
+          `http://localhost:8080/api/applications/${newId}/documents`,
+          { method: "POST", body: documentData }
+        );
+        if (!documentResponse.ok) {
+          throw new Error("Document upload failed");
+        }
+      }
+
       setApplicationId(newId);
       setTrackId(newId);
       setTrackedApplication(newId);
       setTrackedStatus(application.status);
       setShowApplicationForm(false);
       setSelectedService(null);
+      setSelectedFile(null);
 
       alert(
         "Application submitted successfully!\n\nYour Application ID is:\n" +
@@ -1375,6 +1389,7 @@ function App() {
 
               <input
                 type="file"
+                onChange={(event) => setSelectedFile(event.target.files[0] || null)}
                 />
 
                 <button
