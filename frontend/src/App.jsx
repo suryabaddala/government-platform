@@ -357,8 +357,11 @@ function App() {
     const link = document.createElement("a");
     link.href = downloadUrl;
     link.download = documentMetadata.originalFilename;
+    link.style.display = "none";
+    document.body.appendChild(link);
     link.click();
-    URL.revokeObjectURL(downloadUrl);
+    link.remove();
+    setTimeout(() => URL.revokeObjectURL(downloadUrl), 1000);
   };
 
   // =========================
