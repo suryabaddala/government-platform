@@ -17,6 +17,7 @@ function App() {
   const [showAdmin, setShowAdmin] = useState(false);
   const [adminKey, setAdminKey] = useState("");
   const [adminApplications, setAdminApplications] = useState([]);
+  const [adminDocuments, setAdminDocuments] = useState({});
 
   const [selectedService, setSelectedService] = useState(null);
   const [showApplicationForm, setShowApplicationForm] = useState(false);
@@ -328,6 +329,36 @@ function App() {
           : application
       )
     );
+  };
+
+  const loadAdminDocuments = async (applicationId) => {
+    try {
+      const response = await fetch(
+        `http://localhost:8080/api/applications/${applicationId}/documents`
+      );
+      if (!response.ok) throw new Error("Documents could not be loaded");
+      const documents = await response.json();
+      setAdminDocuments((current) => ({ ...current, [applicationId]: documents }));
+    } catch (error) {
+      alert("Could not load application documents.");
+    }
+  };
+
+  const downloadAdminDocument = async (applicationId, documentMetadata) => {
+    const response = await fetch(
+      `http://localhost:8080/api/applications/${applicationId}/documents/${documentMetadata.id}/download`,
+      { headers: { "X-Admin-Key": adminKey } }
+    );
+    if (!response.ok) {
+      alert("Could not download the document.");
+      return;
+    }
+    const downloadUrl = URL.createObjectURL(await response.blob());
+    const link = document.createElement("a");
+    link.href = downloadUrl;
+    link.download = documentMetadata.originalFilename;
+    link.click();
+    URL.revokeObjectURL(downloadUrl);
   };
 
   // =========================
@@ -1488,6 +1519,21 @@ function App() {
                     <option value="PROCESSING">Processing</option>
                     <option value="APPROVED">Approved</option>
                   </select>
+                  <button
+                    type="button"
+                    onClick={() => loadAdminDocuments(application.applicationId)}
+                  >
+                    Documents
+                  </button>
+                  {(adminDocuments[application.applicationId] || []).map((document) => (
+                    <button
+                      type="button"
+                      key={document.id}
+                      onClick={() => downloadAdminDocument(application.applicationId, document)}
+                    >
+                      Download {document.originalFilename}
+                    </button>
+                  ))}
                 </div>
               ))}
             </div>
