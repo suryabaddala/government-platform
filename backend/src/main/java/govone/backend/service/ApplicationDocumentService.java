@@ -5,6 +5,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.StandardCopyOption;
 import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
 
 import org.springframework.http.HttpStatus;
@@ -53,5 +54,21 @@ public class ApplicationDocumentService {
 	public List<ApplicationDocument> findByApplicationId(String applicationId) {
 		applicationService.findByApplicationId(applicationId);
 		return documentRepository.findByApplicationId(applicationId.trim().toUpperCase());
+	}
+
+	public Path getStoredPath(String applicationId, Long documentId) {
+		ApplicationDocument document = documentRepository
+				.findByIdAndApplicationId(documentId, applicationId.trim().toUpperCase())
+				.orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Document not found"));
+		Path path = uploadDirectory.resolve(document.getStoredFilename()).normalize();
+		if (!path.startsWith(uploadDirectory.normalize()) || !Files.exists(path)) {
+			throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Document file not found");
+		}
+		return path;
+	}
+
+	public ApplicationDocument findDocument(String applicationId, Long documentId) {
+		return documentRepository.findByIdAndApplicationId(documentId, applicationId.trim().toUpperCase())
+				.orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Document not found"));
 	}
 }
